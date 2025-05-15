@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DonzTzy Shop</title>
+  <style>
+    * {
+      margin: 0; padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      transition: background 0.7s ease;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 40px 20px;
+      color: #fff;
+    }
+
+    /* Dark Mode Background */
+    body.dark {
+      background: linear-gradient(to right, #3a0ca3, #7209b7, #4361ee);
+      color: #fff;
+    }
+
+    /* Light Mode Background */
+    body.light {
+      background: linear-gradient(to right, #ff9a00, #ffcd3c);
+      color: #222;
+    }
+
+    /* Overlay Loading fullscreen */
+    #overlay-loading {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: #120136;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      flex-direction: column;
+      transition: opacity 0.7s ease;
+    }
+
+    #overlay-loading.light {
+      background: #fff5e6;
+    }
+
+    #loading-bar {
+      width: 300px;
+      height: 6px;
+      background: #444;
+      border-radius: 4px;
+      overflow: hidden;
+      box-shadow: 0 0 10px #00ffccaa;
+      margin-top: 10px;
+    }
+
+    #loading-bar.light {
+      background: #ffb84d;
+      box-shadow: 0 0 10px #ffcc66aa;
+    }
+
+    #loading-progress {
+      width: 0%;
+      height: 100%;
+      background: #00ffcc;
+      animation: loadingBarInit 1.5s linear forwards;
+    }
+
+    #loading-progress.light {
+      background: #ffa500;
+    }
+
+    @keyframes loadingBarInit {
+      from { width: 0%; }
+      to { width: 100%; }
+    }
+
+    .halaman {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      padding: 40px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      overflow-y: auto;
+      transition: opacity 0.7s, transform 0.7s;
+      opacity: 0;
+      transform: scale(0.95);
+      pointer-events: none;
+    }
+
+    .halaman.active {
+      opacity: 1;
+      transform: scale(1);
+      pointer-events: auto;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+
+    p {
+      text-align: center;
+      font-size: 1rem;
+      margin-bottom: 20px;
+    }
+
+    button {
+      margin: 10px 5px;
+      padding: 10px 20px;
+      background: #7015ff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    body.light button {
+      background: #e67e22;
+      color: #fff;
+    }
+
+    button:hover {
+      background: #4f11b5;
+    }
+
+    body.light button:hover {
+      background: #ca6f1e;
+    }
+
+    /* Loading bar di bawah tombol */
+    button.loading::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 4px;
+      background: #00ffcc;
+      animation: loadingBar 1.5s linear forwards;
+      width: 0%;
+    }
+
+    body.light button.loading::after {
+      background: #ffa500;
+    }
+
+    @keyframes loadingBar {
+      from {
+        width: 0%;
+      }
+      to {
+        width: 100%;
+      }
+    }
+
+    .slider-container {
+      width: 100%;
+      max-width: 800px;
+      overflow-x: auto;
+      margin-top: 20px;
+    }
+
+    .slider-scroll {
+      display: flex;
+      gap: 20px;
+      padding-bottom: 10px;
+    }
+
+    .produk-box {
+      min-width: 200px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 2px solid #ffffff22;
+      border-radius: 15px;
+      padding: 15px;
+      text-align: center;
+      flex-shrink: 0;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+      color: inherit;
+      transition: background 0.4s;
+    }
+
+    body.light .produk-box {
+      background: rgba(255, 255, 255, 0.3);
+      border-color: #ffb84d55;
+      box-shadow: 0 8px 20px rgba(255, 165, 0, 0.3);
+    }
+
+    .produk-box img {
+      width: 150px;
+      height: auto;
+      border-radius: 10px;
+      margin-bottom: 10px;
+    }
+
+    .produk-box h3 {
+      margin-bottom: 6px;
+      font-size: 1.1rem;
+    }
+
+    .produk-box p {
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+    }
+
+    .fitur-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-top: 30px;
+      width: 100%;
+      max-width: 1000px;
+    }
+
+    .fitur-box {
+      background: rgba(255,255,255,0.1);
+      border-radius: 15px;
+      padding: 20px;
+      border-left: 5px solid #00ffcc;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      color: inherit;
+      transition: background 0.4s;
+    }
+
+    body.light .fitur-box {
+      background: rgba(255,255,255,0.3);
+      border-left-color: #ffa500;
+      box-shadow: 0 4px 10px rgba(255, 165, 0, 0.3);
+    }
+
+    .fitur-box h4 {
+      margin-bottom: 10px;
+      color: #00ffcc;
+    }
+
+    body.light .fitur-box h4 {
+      color: #ffa500;
+    }
+
+    a.button-link {
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    /* Toggle Mode Button */
+    #modeToggle {
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      background: transparent;
+      border: 2px solid #00ffcc;
+      color: #00ffcc;
+      padding: 8px 14px;
+      border-radius: 30px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.3s, color 0.3s;
+      z-index: 10000;
+    }
+
+    #modeToggle:hover {
+      background: #00ffcc;
+      color: #120136;
+    }
+
+    body.light #modeToggle {
+      border-color: #ffa500;
+      color: #ffa500;
+    }
+
+    body.light #modeToggle:hover {
+      background: #ffa500;
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Toggle Dark/Light Mode -->
+  <button id="modeToggle">Light Mode</button>
+
+  <!-- Overlay Loading -->
+  <div id="overlay-loading">
+    <div>Loading...</div>
+    <div id="loading-bar"><div id="loading-progress"></div></div>
+  </div>
+
+  <div class="halaman" id="halaman1">
+    <h1>Welcome To DonzTzy Shop</h1>
+    <p>Silakan pilih menu di bawah ini</p>
+    <button onclick="loadAndSwitch('halaman2', this)">Lihat Produk</button>
+  </div>
+
+  <div class="halaman" id="halaman2">
+    <h1>Panel Pterodactyl</h1>
+    <div class="slider-container">
+      <div class="slider-scroll">
+        <div class="produk-box">
+          <img src="https://files.catbox.moe/idn2qx.jpg" alt="Produk 1" />
+          <h3>RAM 1GB | CPU 40%</h3>
+          <p>Rp1.000 / Bulan</p>
+          <a
+            class="button-link"
+            href="https://wa.me/62881012163184?text=Bang%20saya%20ingin%20beli%20Panel%20Bang"
+            target="_blank"
+            ><button>Buy Produk</button></a
+          >
+        </div>
+
+        <div class="produk-box">
+          <img src="https://files.catbox.moe/idn2qx.jpg" alt="Produk 2" />
+          <h3>RAM 2GB | CPU 60%</h3>
+          <p>Rp2.000 / bulan</p>
+          <a
+            class="button-link"
+            href="https://wa.me/62881012163184?text=Bang%20saya%20ingin%20beli%20Panel%20Bang"
+            target="_blank"
+            ><button>Buy Produk</button></a
+          >
+        </div>
+
+        <div class="produk-box">
+          <img src="https://files.catbox.moe/idn2qx.jpg" alt="Produk 3" />
+          <h3>RAM 3GB | CPU 80%</h3>
+          <p>Rp3.000 / bulan</p>
+          <a
+            class="button-link"
+            href="https://wa.me/62881012163184?text=Bang%20saya%20ingin%20beli%20Panel%20Bang"
+            target="_blank"
+            ><button>Buy Produk</button></a
+            >
+        </div>
+                <div class="produk-box">
+          <img src="https://files.catbox.moe/idn2qx.jpg" alt="Produk 3" />
+          <h3>RAM 4GB | CPU 100%</h3>
+          <p>Rp4.000 / bulan</p>
+          <a
+            class="button-link"
+            href="https://wa.me/62881012163184?text=Bang%20saya%20ingin%20beli%20Panel%20Bang"
+            target="_blank"
+            ><button>Buy Produk</button></a
+            >
+        </div>
+                <div class="produk-box">
+          <img src="https://files.catbox.moe/idn2qx.jpg" alt="Produk 3" />
+          <h3>RAM 5GB | CPU 120%</h3>
+          <p>Rp5.000 / bulan</p>
+          <a
+            class="button-link"
+            href="https://wa.me/62881012163184?text=Bang%20saya%20ingin%20beli%20Panel%20Bang"
+            target="_blank"
+            ><button>Buy Produk</button></a
+            >
+        </div>
+                <div class="produk-box">
+          <img src="https://files.catbox.moe/idn2qx.jpg" alt="Produk 3" />
+          <h3>RAM 6GB | CPU 140%</h3>
+          <p>Rp6.000 / bulan</p>
+          <a
+            class="button-link"
+            href="https://wa.me/62881012163184?text=Bang%20saya%20ingin%20beli%20Panel%20Bang"
+            target="_blank"
+            ><button>Buy Produk</button></a
+            >
+        </div>
+                <div class="produk-box">
+          <img src="https://files.catbox.moe/idn2qx.jpg" alt="Produk 3" />
+          <h3>RAM 7GB | CPU 160%</h3>
+          <p>Rp7.000 / bulan</p>
+          <a
+            class="button-link"
+            href="https://wa.me/62881012163184?text=Bang%20saya%20ingin%20beli%20Panel%20Bang"
+            target="_blank"
+            ><button>Buy Produk</button></a
+            >
+        </div>
+                <div class="produk-box">
+          <img src="https://files.catbox.moe/idn2qx.jpg" alt="Produk 3" />
+          <h3>RAM 8GB | CPU 180%</h3>
+          <p>Rp8.000 / bulan</p>
+          <a
+            class="button-link"
+            href="https://wa.me/62881012163184?text=Bang%20saya%20ingin%20beli%20Panel%20Bang"
+            target="_blank"
+            ><button>Buy Produk</button></a
+            >
+        </div>
+                        <div class="produk-box">
+          <img src="https://files.catbox.moe/idn2qx.jpg" alt="Produk 3" />
+          <h3>RAM 9GB | CPU 200%</h3>
+          <p>Rp9.000 / bulan</p>
+          <a
+            class="button-link"
+            href="https://wa.me/62881012163184?text=Bang%20saya%20ingin%20beli%20Panel%20Bang"
+            target="_blank"
+            ><button>Buy Produk</button></a
+            >
+        </div>
+                        <div class="produk-box">
+          <img src="https://files.catbox.moe/idn2qx.jpg" alt="Produk 3" />
+          <h3>RAM 10GB | CPU 220%</h3>
+          <p>Rp10.000 / bulan</p>
+          <a
+            class="button-link"
+            href="https://wa.me/62881012163184?text=Bang%20saya%20ingin%20beli%20Panel%20Bang"
+            target="_blank"
+            ><button>Buy Produk</button></a
+            >
+        </div>
+      </div>
+    </div>
+        <h1>Akses Panel</h1>
+    <div class="slider-container">
+      <div class="slider-scroll">
+        <div class="produk-box">
+          <img src="https://files.catbox.moe/idn2qx.jpg" alt="Produk 1" />
+          <h3>Reseller Panel</h3>
+          <p>Rp8.000 / bulan</p>
+          <a
+            class="button-link"
+            href="https://wa.me/62881012163184?text=Halo%20saya%20ingin%20beli%20Paket%20Hosting%201"
+            target="_blank"
+            ><button>Buy Produk</button></a
+          >
+        </div>
+
+        <div class="produk-box">
+          <img src="https://files.catbox.moe/idn2qx.jpg" alt="Produk 2" />
+          <h3>Admin Panel</h3>
+          <p>Rp15.000 / bulan</p>
+          <a
+            class="button-link"
+            href="https://wa.me/62881012163184?text=Bang%20saya%20ingin%20beli%20Panel%20Bang"
+            target="_blank"
+            ><button>Buy Produk</button></a
+          >
+        </div>
+        <div class="produk-box">
+          <img src="https://files.catbox.moe/idn2qx.jpg" alt="Produk 3" />
+          <h3>Owner Panel</h3>
+          <p>Rp20.000</p>
+          <a
+            class="button-link"
+            href="https://wa.me/62881012163184?text=Bang%20saya%20ingin%20beli%20Panel%20Bang"
+            target="_blank"
+            ><button>Buy Produk</button></a
+            >
+        </div>
+        <div class="produk-box">
+          <img src="https://files.catbox.moe/idn2qx.jpg" alt="Produk 3" />
+          <h3>Tangan Kanan</h3>
+          <p>Rp25.000 / bulan</p>
+          <a
+            class="button-link"
+            href="https://wa.me/62881012163184?text=Bang%20saya%20ingin%20beli%20Panel%20Bang"
+            target="_blank"
+            ><button>Buy Produk</button></a
+            >
+        </div>
+      </div>
+    </div>
+          <button onclick="loadAndSwitch('halaman3', this)">Next</button>
+  </div>
+
+<!-- Halaman 3 -->
+  <div class="halaman" id="halaman3">
+      <h1>Kebutuhan Script Bot</h1>
+    <div class="slider-container">
+      <div class="slider-scroll">
+        <div class="produk-box">
+          <img src="https://files.catbox.moe/wpnhce.jpg" alt="Produk 1" />
+          <h3>Script Cpanel</h3>
+          <p>Rp10.000</p>
+          <a
+            class="button-link"
+            href="https://wa.me/62881012163184?text=Halo%20saya%20ingin%20beli%20Paket%20Hosting%201"
+            target="_blank"
+            ><button>Buy Produk</button></a
+          >
+        </div>
+
+        <div class="produk-box">
+          <img src="https://files.catbox.moe/wpnhce.jpg" alt="Produk 2" />
+          <h3>Script Push Kontak</h3>
+          <p>Rp5.000</p>
+          <a
+            class="button-link"
+            href="https://wa.me/62881012163184?text=Bang%20saya%20ingin%20beli%20Panel%20Bang"
+            target="_blank"
+            ><button>Buy Produk</button></a
+          >
+        </div>
+        <div class="produk-box">
+          <img src="https://files.catbox.moe/wpnhce.jpg" alt="Produk 3" />
+          <h3>Script Store</h3>
+          <p>Rp10.000</p>
+          <a
+            class="button-link"
+            href="https://wa.me/62881012163184?text=Bang%20saya%20ingin%20beli%20Panel%20Bang"
+            target="_blank"
+            ><button>Buy Produk</button></a
+            >
+        </div>
+        <div class="produk-box">
+          <img src="https://files.catbox.moe/wpnhce.jpg" alt="Produk 3" />
+          <h3>Script Bug CrazyDonz</h3>
+          <p>Rp15.000</p>
+          <a
+            class="button-link"
+            href="https://wa.me/62881012163184?text=Bang%20saya%20ingin%20beli%20Panel%20Bang"
+            target="_blank"
+            ><button>Buy Produk</button></a
+            >
+        </div>
+        </div>
+        </div>
+                        <h1>All Jasa Donz Hosting</h1>
+    <div class="slider-container">
+      <div class="slider-scroll">
+        <div class="produk-box">
+          <img src="https://files.catbox.moe/wpnhce.jpg" alt="Produk 1" />
+          <h3>Jasa Tambah Fitur</h3>
+          <p>Rp5.000 / fitur</p>
+          <a
+            class="button-link"
+            href="https://wa.me/62881012163184?text=Halo%20saya%20ingin%20beli%20Paket%20Hosting%201"
+            target="_blank"
+            ><button>Buy Produk</button></a
+          >
+        </div>
+
+        <div class="produk-box">
+          <img src="https://files.catbox.moe/wpnhce.jpg" alt="Produk 2" />
+          <h3>Jasa Fix Error Svript</h3>
+          <p>Rp10.000</p>
+          <a
+            class="button-link"
+            href="https://wa.me/62881012163184?text=Bang%20saya%20ingin%20beli%20Panel%20Bang"
+            target="_blank"
+            ><button>Buy Produk</button></a
+          >
+        </div>
+        <div class="produk-box">
+          <img src="https://files.catbox.moe/wpnhce.jpg" alt="Produk 3" />
+          <h3>Jasa Buat Web</h3>
+          <p>Rp20.000</p>
+          <a
+            class="button-link"
+            href="https://wa.me/62881012163184?text=Bang%20saya%20ingin%20beli%20Panel%20Bang"
+            target="_blank"
+            ><button>Buy Produk</button></a
+            >
+        </div>
+        <div class="produk-box">
+          <img src="https://files.catbox.moe/wpnhce.jpg" alt="Produk 3" />
+          <h3>Jasa Buat Web Payment</h3>
+          <p>Rp10.000</p>
+          <a
+            class="button-link"
+            href="https://wa.me/62881012163184?text=Bang%20saya%20ingin%20beli%20Panel%20Bang"
+            target="_blank"
+            ><button>Buy Produk</button></a
+            >
+            </div>
+            </div>
+            </div>
+ <button onclick="loadAndSwitch('halaman4', this)">Benefits Buy</button>
+ </div>
+  <div class="halaman" id="halaman4">
+    <h1>Benefits All Buy</h1>
+    <div class="fitur-container">
+      <div class="fitur-box">
+        <h4>Panel</h4>
+        <p>Anti Delay, anti delet, garansi, run bot cepet, bisa jual lagi.</p>
+      </div>
+      <div class="fitur-box">
+        <h4>Reseller</h4>
+        <p>Bisa Open Panel gb an, crate panel puas, anti delay, anti delete, bisa jual panel, balmod</p>
+      </div>
+      <div class="fitur-box">
+        <h4>Admin Panel</h4>
+        <p>Bisa Open Reseller Panel, bisa jual panel, bisa crate panel puas, free script canel, dll.</p>
+      </div>
+    </div>
+    <button onclick="loadAndSwitch('halaman1', this)">Kembali ke Home</button>
+  </div>
+
+<script>
+  const body = document.body;
+  const modeToggle = document.getElementById('modeToggle');
+  const overlay = document.getElementById('overlay-loading');
+  const loadingProgress = document.getElementById('loading-progress');
+  const loadingBar = document.getElementById('loading-bar');
+
+  function setMode(mode) {
+    if (mode === 'dark') {
+      body.classList.add('dark');
+      body.classList.remove('light');
+      modeToggle.textContent = 'Light Mode';
+      overlay.classList.remove('light');
+      loadingProgress.classList.remove('light');
+      loadingBar.classList.remove('light');
+    } else {
+      body.classList.add('light');
+      body.classList.remove('dark');
+      modeToggle.textContent = 'Dark Mode';
+      overlay.classList.add('light');
+      loadingProgress.classList.add('light');
+      loadingBar.classList.add('light');
+    }
+    localStorage.setItem('mode', mode);
+  }
+  
+  window.onload = () => {
+    const savedMode = localStorage.getItem('mode') || 'dark';
+    setMode(savedMode);
+    // Tampilkan halaman awal dengan animasi loading overlay
+    overlay.style.opacity = '1';
+    overlay.style.pointerEvents = 'auto';
+
+    loadingProgress.style.width = '0%';
+    loadingProgress.style.animation = 'loadingBarInit 1.5s linear forwards';
+
+    loadingProgress.addEventListener('animationend', () => {
+      overlay.style.opacity = '0';
+      overlay.style.pointerEvents = 'none';
+      tampilHalaman('halaman1');
+    });
+  };
+
+  modeToggle.addEventListener('click', () => {
+    if (body.classList.contains('dark')) {
+      setMode('light');
+    } else {
+      setMode('dark');
+    }
+  });
+
+  function loadAndSwitch(idTujuan, btn) {
+    if (btn.classList.contains('loading')) return; // cegah klik ganda
+    btn.classList.add('loading');
+    btn.style.setProperty('--loading-width', '0%');
+
+    let progress = 0;
+    const interval = setInterval(() => {
+      progress += 5;
+      btn.style.setProperty('--loading-width', progress + '%');
+      btn.style.setProperty('--loading-after-width', progress + '%');
+      btn.style.setProperty('--loading-after-bg', body.classList.contains('dark') ? '#00ffcc' : '#ffa500');
+      btn.style.setProperty('--loading-color', body.classList.contains('dark') ? '#00ffcc' : '#ffa500');
+      btn.style.setProperty('--loading-bar', progress + '%');
+      btn.style.setProperty('--loading-bar-color', body.classList.contains('dark') ? '#00ffcc' : '#ffa500');
+      btn.style.setProperty('--loading-bar-bg', body.classList.contains('dark') ? '#00ffcc' : '#ffa500');
+
+      // gunakan custom property untuk after di CSS button.loading
+      btn.style.setProperty('--loading-after-width', progress + '%');
+      if (progress >= 100) {
+        clearInterval(interval);
+        btn.classList.remove('loading');
+        tampilHalaman(idTujuan);
+      }
+    }, 75);
+  }
+
+  function tampilHalaman(idTujuan) {
+    const semuaHalaman = document.querySelectorAll('.halaman');
+    semuaHalaman.forEach(hal => hal.classList.remove('active'));
+    const target = document.getElementById(idTujuan);
+    target.classList.add('active');
+  }
+</script>
+
+</body>
+</html>
